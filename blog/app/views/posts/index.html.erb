@@ -1,0 +1,10 @@
+<h1>Posts#index</h1>
+<p>Find me in app/views/posts/index.html.erb</p>
+
+
+<% @posts.each do |post|%>
+    <p><%= post.id%></p>
+    <p><%= post.title%></p>
+    <p><%= post.body%></p>
+    <p><%= post.created_at%></p>
+<%end%>
