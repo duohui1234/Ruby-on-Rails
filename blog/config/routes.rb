@@ -5,5 +5,12 @@ Rails.application.routes.draw do
   get 'posts/index'
   get 'posts/create'
   get 'posts/new'
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+
+  #restful 아키텍쳐
+  get 'posts/:id'  => 'posts#show'
+  get 'posts/:id/destroy' => 'posts#destroy'
+
+  get 'posts/:id/edit'  => 'posts#edit'
+  get 'posts/:id/update' =>'posts#update'
+
 end
