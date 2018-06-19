@@ -1,127 +1,131 @@
-### Rails CRUD
+
+
+#### Setting
+
+`rails g model post` : post 객체 만듬
+
+`migrate` 폴더 내에 `t.string :title ` 입력 => 테이블 틀만 만듬
+
+`rake db:migrate` <->`rake db:drop`
 
 
 
-`$ rails g controller index`
+`$rails console`
 
-` $ rails g model post`
+`Post.create(title: "test", body: "test")`
 
-```ruby
-#db\migrate\~~~_posts.db
-class CreatePosts < ActiveRecord::Migration[5.2]
-  def change
-    create_table :posts do |t|
-      t.string :title #추가 부분
-      t.text :body #추가 부분
-      t.timestamps
+`Post.all`
+
+
+
+#### Rails CRUD
+
+-
+
+- ORM(Object Relational Mapper)
+
+  - rails에서는 [ActiveRecord](https://guides.rorlab.org/active_record_basics.html)를 활용한다
+
+- Controller 생성
+
+  ~~~
+  $rails g controller post index new create show edit update destroy
+  ~~~
+
+- Model 생성
+
+  ~~~
+  $rails generate model post
+  ~~~
+
+  - `app/model/post.rb`
+  - `db/migrate/21080619_create_posts.rb`
+
+- `migration` 파일 변경
+
+  ~~~ruby
+  #db/migrate/21080619_create_posts.rb
+
+  class CreatePosts < ActiveRecord::Migration[5.2]
+    def change
+      create_table :posts do |t|
+
+        t.string 'title'
+        t.text 'body'
+        t.timestamps
+
+      end
     end
   end
+  ~~~
+
+  ~~~
+  $rake db:migrate   
+  ~~~
+
+  ~~~
+  $rake db:drop   //반드시 db/schema.rb에 반영이 되었는지 확인
+  ~~~
+
+- CRUD
+
+  - Create : `new` , `create`
+
+  - Read : `show`
+
+  - Update : `edit`  , `update`
+
+  - Destroy : `destroy`
+
+
+
+- `rails console`에서
+
+- Create
+
+  ~~~
+  irb(main):001:0> Post.create(title: "제목", body: "내용")
+  ~~~
+
+- Read
+
+- ~~~
+  irb(main):001:0> Post.find(id)
+  ~~~
+
+- Update
+
+  ~~~
+  irb(main):001:0> post = Post.find(id)
+  irb(main):001:0> post.update(title: "변경", body: "변경")
+  ~~~
+
+- Destroy
+
+  ~~~
+  irb(main):001:0> Post.find(id).destroy
+  ~~~
+
+
+
+#### [Rails flash message](https://guides.rorlab.org/action_controller_overview.html#flash)
+
+~~~ruby
+def destroy
+    flash[:alert] = "삭제되었습니다"
 end
-```
+~~~
 
-반드시 위 추가 이후 migrate를 해야 schema가 최신화 됨!! 반드시!!
-
-`rake db:migrate`
-
-```ruby
-#db\migrate\schema.rb
-ActiveRecord::Schema.define(version: 2018_06_19_011308) do
-
-  create_table "posts", force: :cascade do |t|
-    t.string "title"
-    t.text "body"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-end
-```
+~~~erb
+<%= flash[:alert] %>
+~~~
 
 
 
-DB 삭제(window환경에서는 drop error 발생함)
+#### [Rails partial](https://guides.rorlab.org/layouts_and_rendering.html#%ED%8C%8C%EC%85%9C-partial-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0)
 
-- db/migrate/developmetn.sqlite3 지우고 ~~~_posts.rb 수정 후 다시 `rake db:migrate`
+`app/views/layout/_flash.html.erb`
 
-` rake db:drop`
-
-
-
-##### Cosole로 DB관리
-
-`rails console`
-
-```cmd
-##In rails console
-
-##Post model 확인
-> Post.all
-
-#irb(main):001:0> Post.all
-#  Post Load (13.5ms)  SELECT  "posts".* FROM "posts" LIMIT ?  
-# [["LIMIT", 11]]
-#=> #<ActiveRecord::Relation []>
-
-## insert test data
-> Post.create(title:"test",body:"test")
-
-#irb(main):002:0> Post.create(title:"test",body:"test")
-#   (0.3ms)  begin transaction
-#  Post Create (22.9ms)  INSERT INTO "posts" ("title", "body", #"created_at", "updated_at") VALUES (?, ?, ?, ?)  [["title", "test"],
-#["body", "test"], ["created_at", "2018-06-19 01:39:44.133587"],
-#["updated_at", "2018-06-19 01:39:44.133587"]]
-#   (34.4ms)  commit transaction
-#=> #<Post id: 1, title: "test", body: "test", created_at: "2018-06-19 #01:39:44", updated_at: "2018-06-19 01:39:44">
-
-
-```
-
-
-
-#### DB GUI에서 관리하기
-
-- Gemfile
-
-```ruby
-group :development, :test do
-  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
-  gem 'rails_db'  ### 이gem 추가
-end
-
-```
-
-항상 gem 추가 후
-
-`bundle install`
-
-`http://localhost:3000/rails/db`
-
-
-
-##### Data visualization
-
-```ruby
-#routes.rb
-root 'post#index'
-get 'post/index' => 'post#index'
-```
-
-```erb
-<!--Index.html.erb-->
-
-<h1>Post#index</h1>
-
-<% @posts.each do |post|%>
-    <p><%= post.id%></p>
-    <p><%= post.title%></p>
-    <p><%= post.body%></p>
-    <p><%= post.created_at%></p>
-<%end%>
-```
-
-```ruby
-#post_controller.rb
-def index
-    @posts = Post.all
-end
+~~~erb
+<%= render 'layouts/flash' %>
+~~~
