@@ -1,0 +1,29 @@
+
+<div class = "text-right">
+<button type="button"  class="btn btn-outline-info mb-3" onclick="location.href='/posts/new'">게시글 작성하기</button>
+</div>
+
+ <table class="table">
+  <thead>
+    <tr>
+      <th scope="col">작성자</th>
+      <th scope="col">제목</th>
+      <th scope="col">수정</th>
+      <th scope="col">삭제</th>
+    </tr>
+  </thead>
+  <tbody>
+
+
+    <% @posts.each do |p|%>
+
+    <tr>
+      <th scope="row"><%= p.username %></th>
+      <td><a href = "/posts/<%= p.id %>/show"><%= p.title %></a></td>
+      <td><a href= "/posts/<%= p.id %>/edit">수정</a></td>
+      <td><a href = "/posts/<%= p.id %>/destroy">삭제</a></td>
+    </tr>
+    <%end%>
+
+  </tbody>
+</table>
