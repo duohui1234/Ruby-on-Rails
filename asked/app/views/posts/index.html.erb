@@ -6,6 +6,7 @@
  <table class="table">
   <thead>
     <tr>
+      <th scope="col">ID</th>
       <th scope="col">작성자</th>
       <th scope="col">제목</th>
       <th scope="col">수정</th>
@@ -18,10 +19,11 @@
     <% @posts.each do |p|%>
 
     <tr>
-      <th scope="row"><%= p.username %></th>
-      <td><a href = "/posts/<%= p.id %>/show"><%= p.title %></a></td>
+      <th scope="row"><%= p.id %></th>
+      <td><%= p.username %></td>
+      <td><a href = "/posts/<%= p.id %>"><%= p.title %></a></td>
       <td><a href= "/posts/<%= p.id %>/edit">수정</a></td>
-      <td><a href = "/posts/<%= p.id %>/destroy">삭제</a></td>
+      <td><a href = "/posts/<%= p.id %>" data-method="delete" data-confirm="진짜 삭제?">삭제</a></td>
     </tr>
     <%end%>
 

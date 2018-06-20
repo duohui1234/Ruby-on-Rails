@@ -2,7 +2,13 @@
 <hr>
 
 
-<form action ="/posts/<%= @post.id %>/update">
+<form action ="/posts/<%= @post.id %>" method="post">
+
+  <!-- put방식의 요청을 보내기 위해서는 이렇게 써야함 -->
+   <input type="hidden" name="_method" value="put" />
+   <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>"/>
+
+
   <div class="form-group">
     <label for="exampleInputEmail1">작성자명</label>
     <input type="text" class="form-control" name = "username" id="exampleInputEmail1" aria-describedby="emailHelp" value="<%= @post.username %>">
@@ -17,6 +23,7 @@
     <label for="exampleInputPassword1">내용</label>
     <textarea class="form-control" name = "content" id="exampleInputPassword1"><%= @post.content %></textarea>
   </div>
+
 
   <button type="submit" class="btn btn-primary">수정하기</button>
 </form>

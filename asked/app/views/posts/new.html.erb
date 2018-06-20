@@ -2,7 +2,7 @@
 <hr >
 
 
-<form action ="/posts/create">
+<form action ="/posts/create" method = "post">
   <div class="form-group">
     <label for="exampleInputEmail1">작성자명</label>
     <input type="text" class="form-control" name = "username" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="작성자명을 입력하세요">
@@ -17,6 +17,8 @@
     <label for="exampleInputPassword1">내용</label>
     <textarea class="form-control" name = "content" id="exampleInputPassword1" placeholder="내용을 입력하세요"></textarea>
   </div>
+
+  <input type = "hidden" name = "authenticity_token" value = "<%=form_authenticity_token%>" />
 
   <button type="submit" class="btn btn-primary">Submit</button>
 </form>
