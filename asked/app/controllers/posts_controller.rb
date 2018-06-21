@@ -1,13 +1,17 @@
 class PostsController < ApplicationController
+
+ #index액션을 제외하고 나머지 모든 액션에 대해서는 먼저 authorize 액션을 먼저 해라
+  before_action :authorize, except: [:index]
+
   def index
     @posts = Post.all.reverse
-    end
+  end
 
   def new
   end
 
   def create
-    Post.create(username: params[:username], title: params[:title], content: params[:content])
+    Post.create(user_id: current_user.id, title: params[:title], content: params[:content])
 
     flash[:notice] = "새로운 글이 작성되었습니다"
 
@@ -25,7 +29,7 @@ class PostsController < ApplicationController
   def update
     post = Post.find(params[:id])
     post.title = params[:title]
-    post.username = params[:username]
+    post.user_id = current_user.id
     post.content = params[:content]
     post.save
 

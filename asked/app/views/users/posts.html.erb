@@ -1,0 +1,23 @@
+<h3><%=current_user.username%>님의 글목록</h3>
+<br>
+
+ <table class="table text-center">
+  <thead>
+    <tr>
+      <th scope="col">제목</th>
+      <th scope="col">내용</th>
+    </tr>
+  </thead>
+  <tbody>
+
+
+    <% @posts.each do |p|%>
+
+    <tr>
+      <th scope="row"><%= p.title %></th>
+      <td><%= p.content %></td>
+    </tr>
+    <%end%>
+
+  </tbody>
+</table>

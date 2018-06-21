@@ -26,7 +26,7 @@ class UsersController < ApplicationController
       #가입이 되면 true 리턴하면서 저장, 비밀번호가 다르면 false 리턴하면서 저장 안됨
       if @user.save
         flash[:notice] = "가입을 축하합니다"
-        redirect_to '/'
+        redirect_to '/login'
       else
         flash[:alert] = "비밀번호가 다릅니다"
         #redirect_to '/signup'
@@ -79,6 +79,10 @@ class UsersController < ApplicationController
     session.clear
     flash[:notice] = "로그아웃!"
     redirect_to '/'
+  end
+
+  def posts
+    @posts = current_user.posts
   end
 
 

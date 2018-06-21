@@ -13,7 +13,7 @@
 ActiveRecord::Schema.define(version: 2018_06_20_012312) do
 
   create_table "posts", force: :cascade do |t|
-    t.string "username"
+    t.integer "user_id"
     t.string "title"
     t.text "content"
     t.datetime "created_at", null: false
