@@ -88,11 +88,45 @@
 
   :로그인 되어있는 유저 검증(필터)
 
-7. View 파일 수정하기
+7. View 파일 수정하기 (두가지 방법)
 
-   ~~~
+   ~~~ruby
+   #1번
    $ rails generate devise:views users
+
+   #config/initializers/devise.rb
+   config.scoped_views = true
    ~~~
 
+   ~~~ruby
+   #2번
+   $ rails generate devise:views
+   ~~~
 
-   
+8. [custom column 추가하기](https://github.com/plataformatec/devise#strong-parameters)
+
+   1. Migration 파일에 원하는 column 추가
+
+   2. `app/views/devise/registrations/new.html.erb` input 추가
+
+   3. `app/controllers/application_controlle.rb`
+
+      ~~~ruby
+      class ApplicationController < ActionController::Base
+        # Prevent CSRF attacks by raising an exception.
+        # For APIs, you may want to use :null_session instead.
+        protect_from_forgery with: :exception
+
+
+        before_action :configure_permitted_parameters, if: :devise_controller?
+
+        protected
+
+        def configure_permitted_parameters
+          devise_parameter_sanitizer.permit(:sign_up, keys: [:name])
+        end
+
+      end
+      ~~~
+
+      
