@@ -1,0 +1,14 @@
+<h1>index</h1>
+
+
+
+<a href = "/posts/new">새글 작성하기</a>
+<hr/>
+<% @posts.each do |p|%>
+  <p><%=p.title%></p>
+  <p><%=p.content%></p>
+  <a href = "/posts/<%=p.id%>">글 보러가기</a>
+  <a href = "posts/<%=p.id%>/edit">수정하기</a>
+  <a href = "/posts/<%=p.id%>" data-method="delete">삭제하기</a>
+  <hr/>
+<%end%>
