@@ -1,0 +1,7 @@
+<h1>글 써</h1>
+<form action="/posts" method="post">
+  <input type="text" name="title" /> <br />
+  <textarea name="content"></textarea> <br />
+  <input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
+  <input type="submit" />
+</form>

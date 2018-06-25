@@ -1,0 +1,20 @@
+<h1>글 봐!!</h1>
+<%= @post.id %>번째 글
+<%= @post.title %>
+<%= @post.content %>
+
+<a href="/posts/<%= @post.id %>/edit">수정하기</a>
+<a href="/posts/<%= @post.id %>" data-method="delete" data-confirm="삭제할래?">삭제하기</a>
+<hr />
+
+<form action="/posts/<%= @post.id%>/comments" method="post">
+  <input type="text" name="content" /><br />
+  <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+  <input type="submit" />
+</form>
+<hr />
+
+<% @comments.each do |comment| %>
+  <%= comment.content %>
+  <hr />
+<% end %>
