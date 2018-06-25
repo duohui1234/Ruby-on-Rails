@@ -4,3 +4,16 @@
 <p><%=@post.id%></p>
 <p><%=@post.title%></p>
 <p><%=@post.content%></p>
+
+
+<form action = "/posts/<%=@post.id%>/comments" method="post">
+     <textarea name = "content"></textarea>
+     <input type = "hidden" name = "authenticity_token" value = "<%=form_authenticity_token%>" />
+     <input type = "submit">
+</form>
+
+
+<% @comments.each do |c|%>
+  <p><%=c.content%></p>
+  <hr/>
+<%end%>

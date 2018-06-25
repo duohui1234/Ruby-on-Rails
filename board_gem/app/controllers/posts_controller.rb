@@ -15,7 +15,7 @@ class PostsController < ApplicationController
   end
 
   def show
-    @post
+    @comments = @post.comments
   end
 
   def edit
@@ -30,7 +30,6 @@ class PostsController < ApplicationController
   def destroy
      @post.destroy
      redirect_to '/'
-
   end
 
 
@@ -45,4 +44,5 @@ class PostsController < ApplicationController
   def post_params
     params.permit(:title, :content)
   end
+
 end

@@ -3,12 +3,12 @@ Rails.application.routes.draw do
 
 
 
+  devise_for :users
   root 'posts#index'
 
 
-  get 'comments/new'
-  get 'comments/create'
 
+  post 'posts/:post_id/comments'  => 'comments#create'
 
 
   resources :posts
