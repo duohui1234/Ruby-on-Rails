@@ -114,7 +114,7 @@ protect_from_forgery with: :exception
       #t.regerence :user_id
   ~~~
 
-- 실제로 관게를 활용하기
+- 실제로 관계를 활용하기
 
   1. 유저가 가지고 있는 모든 게시글 가져오기
 
