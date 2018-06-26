@@ -3,8 +3,12 @@
 <%= @post.title %>
 <%= @post.content %>
 
-<a href="/posts/<%= @post.id %>/edit">수정하기</a>
-<a href="/posts/<%= @post.id %>" data-method="delete" data-confirm="삭제할래?">삭제하기</a>
+
+<%= link_to '수정하기', edit_post_path(@post) %>
+<%= link_to '삭제하기',@post, method: :delete, data: {confirm: '지울꺼야?'}%>
+
+<!-- <a href="/posts/<%= @post.id %>/edit">수정하기</a>
+<a href="/posts/<%= @post.id %>" data-method="delete" data-confirm="삭제할래?">삭제하기</a> -->
 <hr />
 
 <form action="/posts/<%= @post.id%>/comments" method="post">

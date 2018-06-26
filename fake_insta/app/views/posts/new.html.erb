@@ -1,7 +1,28 @@
 <h1>글 써</h1>
-<form action="/posts" method="post">
+
+<!-- <form action="/posts" method="post">
   <input type="text" name="title" /> <br />
   <textarea name="content"></textarea> <br />
   <input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
   <input type="submit" />
 </form>
+
+<br /> -->
+
+<!-- <%# form_tag('/posts', method: 'post') do %>
+  <%# text_field_tag :title %><br />
+  <%# text_area_tag :content %><br />
+  <%# submit_tag "작성하기" %>
+<%#end%> -->
+
+
+
+
+<%=render 'form'%>
+
+<!-- 이중hash -->
+<%# form_for @post do |f| %>
+  <%# f.text_field :title%>
+  <%# f.text_area :content%>
+  <%# f.submit %>
+<%# end %>

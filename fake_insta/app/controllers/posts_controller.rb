@@ -1,12 +1,13 @@
 class PostsController < ApplicationController
   before_action :set_post, only: [:show, :edit, :update, :destroy]
   before_action :authenticate_user!, except: :index
-  
+
   def index
-    @posts = Post.all
+    @posts = Post.all.reverse
   end
 
   def new
+    @post = Post.new
   end
 
   def create
@@ -24,12 +25,12 @@ class PostsController < ApplicationController
 
   def update
     @post.update(post_params)
-    redirect_to "posts/#{@post.id}"
+    redirect_to "/posts/#{@post.id}"
   end
 
   def destroy
     @post.destroy
-    redirct_to "/"
+    redirect_to "/"
   end
 
   private
@@ -38,6 +39,11 @@ class PostsController < ApplicationController
   end
 
   def post_params
-    params.permit(:title, :content)
+    params.require(:post).permit(:title, :content)
   end
+
+
+
+
+
 end

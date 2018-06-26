@@ -1,0 +1,13 @@
+<%# form_for @post do |f| %>
+  <%# f.text_field :title%>
+  <%# f.text_area :content%>
+  <%# f.submit %>
+<%# end %>
+
+
+
+<%= simple_form_for @post do |f| %>
+<%= f.input :title %>
+<%= f.input :content %>
+<%= f.button :submit %>
+<%end%>
