@@ -129,4 +129,37 @@
       end
       ~~~
 
-      
+
+      ~~~ruby
+Post.find(1)
+Post.first(3)
+Post.last(3)
+Post.order(:title) #title column 기준 정렬
+Post.order(title: :desc) #z-a
+Post.order(title: :asc) #a-z
+Post.where("title=?","Golduck") #title column에서 datark Golduck인거 찾아줌
+Post.where("title like ?", "%duck%") #title column에서 duck이 들어간 것을 찾아줌
+Post.where.not("조건")
+User.where("age=? AND gender =?",25,"mail")
+~~~
+
+~~~ruby
+pry(main)> User.all
+pry(main)> app.post('/users/sign_in',email: 'duohui12@gmail.com', password: '1111')
+pry(main)> app.session[:session_id]
+pry(main)> app.controller.params
+pry(main)> app.flash
+~~~
+
+
+
+### Import csv file
+
+~~~ruby
+#db폴더 내에 mydata.csv파일 넣어둠
+
+require 'csv'
+CSV.foreach(Rails.root.join('db','mydata.csv'), {headers: true, encoding: "UTF-8"}) do |row|
+  Post.create! row.to_hash
+end
+~~~
