@@ -10,7 +10,7 @@
 - Commnets 모델
   - `rails g model comment content:string`
   - post _ id 저장
-  -
+  
 
 #### Devise
 
@@ -102,6 +102,7 @@
    #2번
    $ rails generate devise:views
    ~~~
+   - 모든 initializers 폴더 안에 있는 설정은 서버를 껐다가 켜야 반영
 
 8. [custom column 추가하기](https://github.com/plataformatec/devise#strong-parameters)
 
