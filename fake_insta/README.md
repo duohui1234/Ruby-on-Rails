@@ -248,4 +248,187 @@ $rails generate simple_form:install --bootstrap
   <%end%>
   ~~~
 
-  
+
+
+
+### Model validation
+
+```ruby
+#app/models/posts.rb
+
+class Post < ActiveRecord::Base
+  has_many :comments
+  belongs_to :user
+
+
+  #검증(model validation)
+  validates :title, presence: {message: "제목을 입력해주세요"},
+            length: {maximum: 30,
+                     too_long: "%{count}자 이내로 입력해주세요"}
+
+
+  validates :content, presence: {message: "내용을 입력해주세요"}
+
+end
+```
+
+```ruby
+def create
+    @post = Post.new(post_params)
+    respond_to do |format|
+        if @post.save   #post가 정상적으로 저장되었을 경우에는
+            format.html {redirect_to '/', notice: "글 작성완료" } #notice는 flash[:notice]에 값을 담기 위해
+        else     
+            format.html {render :new}
+            format.json {render json: @post.errors}
+        end
+    end
+end
+```
+
+```erb
+<!-- app/views/posts/_form.html.erb -->
+..
+ <%= f.error_notification %>
+..
+```
+
+#### custom helper
+
+```ruby
+#app/helpers/application_helper.rb
+def flash_message(type)
+    case type 
+    when "alert" then  "alert alert-warnig"
+    when "notice" then  "alert alert-primary"
+    end
+end
+```
+
+```erb
+<!-- app/views/layout/application.html.erb -->
+
+<% flash.each do |key,value| %>
+   <div class = "<%= flash_message(key) %>" role="alert">
+     <%= value %>
+   </div>
+<% end %>
+```
+
+
+
+### [kaminari](https://github.com/kaminari/kaminari) - pagination
+
+~~~ruby
+#Gemfile
+gem 'kaminari'
+~~~
+
+~~~
+$bundle install
+~~~
+
+~~~ruby
+# app/controllers/posts_controller.rb
+
+def index
+    #@posts = Post.all.page(params[:page]).per(5)
+     @posts = Post.order(created_at: :desc).page(params[:page]).per(3)  #page쓸때는 reverse 안먹음
+    respond_to do |format|
+      format.html
+      format.json { render json: @posts }
+    end
+end
+~~~
+
+~~~ruby
+#index.html.erb
+...
+<%= paginate @posts %>
+<br/>
+~~~
+
+#### [bootstrap theme](https://github.com/amatsuda/kaminari_themes) - 테마 설정
+
+~~~
+$rails g kaminari:views bootstrap4
+~~~
+
+
+
+### [cancancan](https://github.com/CanCanCommunity/cancancan) - 권한설정
+
+- 로그인한 사용자가 작성한 글만 삭제, 수정할 수 있도록 도와줌
+
+~~~
+$ gem 'cancancan', '~> 2.0'
+~~~
+
+~~~
+$ rails g cancan:ability     // app/models/ability.rb 생성
+~~~
+
+#### [Defining Abilities](https://github.com/CanCanCommunity/cancancan/wiki/defining-abilities)
+
+~~~ruby
+# app/models/ability.rb
+
+class Ability
+  include CanCan::Ability
+
+  def initialize(user)
+    can :read, Post
+    return unless user.present?
+    can :manage, Post, user_id: user.id
+    can :create, Comment
+  end
+    
+end
+~~~
+
+~~~ruby
+#controller ability 확인
+#app/controllers/posts_controller.rb
+
+#restful resources를 사용하는 경우에만 가능, 아닌 경우에는 독립적으로 액션별로 설정해줘야 함
+class PostsController < ApplicationController
+  load_and_authorize_resource
+    ...
+end
+~~~
+
+~~~ruby
+#view에서 ability 확인
+
+<% if can? :edit, @post %>
+   <%= link_to '수정하기', edit_post_path(@post) %>
+<%end%>
+
+<% if can? :destroy, @post %>
+    <%= link_to '삭제하기',@post, method: :delete, data: {confirm: '지울꺼야?'}%>
+<%end%>
+~~~
+
+####  Handle Unauthorized Access
+
+- 로그인한 사용자가 작성한 글이 아닐경우 수정이나 삭제 누르면 루트 페이지로 보내고 메세지 출력하도록 함
+
+~~~ruby
+#app/controllers/application_controller.erb
+
+class ApplicationController < ActionController::Base
+    
+    ...
+        
+    rescue_from CanCan::AccessDenied do |exception|
+      respond_to do |format|
+        format.json { head :forbidden, content_type: 'text/html' }
+        format.html { redirect_to main_app.root_url, notice: exception.message }
+        format.js   { head :forbidden, content_type: 'text/html' }
+      end
+    end
+    
+    ...
+    
+end    
+~~~

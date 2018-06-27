@@ -1,10 +1,15 @@
-<a href="/posts/new">글 쓰러가기</a>
+<!-- <a href="/posts/new" class="btn btn-info">글 쓰러가기</a> -->
+<%= link_to '글 쓰러가기', new_post_path , class: "btn btn-info"%>
 
 <% @posts.each do |post| %>
-  <p><%= post.id %></p>
-  <p><%= post.title %></p>
-  <p><%= post.content %></p>
-  <%= link_to '글보기', post%>
+  <p>작성자: <%= post.user.name %></p><br/>
+  <p><%= post.id %>번째 글</p><br/>
+  <p>제목: <%= post.title %></p><br/>
+  <p>내용: <%= post.content %></p><br/>
+  <%= link_to '글보기', post , class: "btn btn-primary"%>
   <!-- <a href="/posts/<%=post.id%>">글 보러가기</a> -->
   <hr />
 <% end %>
+
+<%= paginate @posts %>
+<br/>

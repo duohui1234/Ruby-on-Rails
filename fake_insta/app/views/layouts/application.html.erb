@@ -9,13 +9,38 @@
 </head>
 <body>
 
+
+<div class = "">
+
+<%= gravatar(current_user) %>
+<!-- <%# if flash[:alert]%>
+<div class="alert alert-warning" role="alert">
+  <%# flash[:alert] %>
+</div>
+<%# elsif flash[:notice]%>
+<div class="alert alert-primary" role="alert">
+  <%# flash[:notice] %>
+</div>
+<%#end%> -->
+
 <% if user_signed_in? %>
   <span><%= current_user.email%></span>
+  <span><%= current_user.name%></span>
   <a href="/users/sign_out" data-method="delete">로그아웃</a>
 <%else%>
  <a href="/users/sign_in">로그인</a>
  <a href="/users/sign_up">회원가입</a>
 <%end%>
+
+</div>
+
+
+
+<% flash.each do |key,value| %>
+   <div class = "<%= flash_message(key) %>" role="alert">
+     <%= value %>
+   </div>
+<% end %>
 
 
 <div class= "container">

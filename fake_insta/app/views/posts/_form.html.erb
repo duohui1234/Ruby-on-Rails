@@ -1,4 +1,5 @@
 <%# form_for @post do |f| %>
+ <%# f.error_messages %>
   <%# f.text_field :title%>
   <%# f.text_area :content%>
   <%# f.submit %>
@@ -7,6 +8,7 @@
 
 
 <%= simple_form_for @post do |f| %>
+<%= f.error_notification %>
 <%= f.input :title %>
 <%= f.input :content %>
 <%= f.button :submit %>

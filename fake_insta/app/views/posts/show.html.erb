@@ -1,18 +1,28 @@
 <h1>글 봐!!</h1>
-<%= @post.id %>번째 글
-<%= @post.title %>
-<%= @post.content %>
+<p><%= @post.id %>번째 글</p>
+<p>작성자: <%= @post.user.name %></p>
+<p>제목: <%= @post.title %></p>
+<p>내용: <%= @post.content %></p>
 
 
+
+<!-- 현재 로그인한 사용자가 쓴글만 삭제 수정할 수 있도록 하는 로직 -->
+<%# if current_user.id == @post.user.id %>
+<% if can? :edit, @post %>
 <%= link_to '수정하기', edit_post_path(@post) %>
+<%end%>
+<% if can? :destroy, @post %>
 <%= link_to '삭제하기',@post, method: :delete, data: {confirm: '지울꺼야?'}%>
+<%end%>
+<hr />
+<%#end%>
 
 <!-- <a href="/posts/<%= @post.id %>/edit">수정하기</a>
 <a href="/posts/<%= @post.id %>" data-method="delete" data-confirm="삭제할래?">삭제하기</a> -->
-<hr />
 
+<h3>댓글 작성하기</h3>
 <form action="/posts/<%= @post.id%>/comments" method="post">
-  <input type="text" name="content" /><br />
+  <input type="text" name="content" />
   <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
   <input type="submit" />
 </form>
