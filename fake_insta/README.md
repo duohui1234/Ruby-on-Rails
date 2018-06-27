@@ -168,4 +168,83 @@ end
 
 
 
+### [Form_tag, From_for](https://guides.rorlab.org/form_helpers.html)
 
+~~~html
+<form action="/posts" method="post">
+  <input type="text" name="title" /> <br />
+  <textarea name="content"></textarea> <br />
+  <input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
+  <input type="submit" />
+</form>
+~~~
+
+~~~ruby
+#post방식일 결우 자동으로 토큰 생성
+<%= form_tag('/posts', method: 'post') do %>
+  <%= text_field_tag :title %><br />
+  <%= text_area_tag :content %><br />
+  <%= submit_tag "작성하기" %>
+<%= end%>
+~~~
+
+~~~ruby
+<%= form_for @post do |f| %>
+  <%= f.text_field :title %>
+  <%= f.text_area :content%>
+  <%= f.submit %>
+<% end %>
+~~~
+
+- `form_for의` 주요 특징
+  - 특정한 모델의 객체를(Post)를 조작하기 위해 사용
+  - 별도의 url(action="/"),method(get,post,put)을 명시하지 않아도 됨.
+  - Controller의 해당 액션(new, edit)에서 반드시 @post에 Post 오브젝트가 담겨야함
+    - `new`: `@post = Post.new ` new에서는 비어있기 때문에 자동으로 create로인식
+    - `edit` : `@post = Post.find(id)` edit에는 값이 들어있기 때문에 update로 
+  - 각 input field의 symbol은 반드시 @post의 column명이랑 일치해야함
+
+### Link_to:url helper
+
+~~~ruby
+<%= link_to '글보기', @post %>
+<%= link_to '글보기', post_path %>
+<%= link_to '새글쓰기', new_post_path %>
+<%= link_to '글 수정', edit_post_path %>
+<%= link_to '모근 글보기', posts_path %>
+<%= link_to '글 삭제', post_path, method: :delete, data: {confirm: "지울래?"}%>
+~~~
+
+
+
+### Gem: [simple form](https://github.com/plataformatec/simple_form)
+
+- Gemfile 설정
+
+~~~ruby
+gem 'simple_form'
+~~~
+
+~~~
+$bundle install
+~~~
+
+~~~
+$rails generate simple_form:install --bootstrap
+~~~
+
+- Bootstrap에 적용
+
+  - CDN을 `application.html.erb`
+
+- [from helper](https://apidock.com/rails/ActionView/Helpers/UrlHelper/link_to) 적용
+
+  ~~~ruby
+  <%= simple_form_for @post do |f| %>
+  <%= f.input :title %>
+  <%= f.input :content %>
+  <%= f.button :submit %>
+  <%end%>
+  ~~~
+
+  

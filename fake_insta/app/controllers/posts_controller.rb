@@ -33,6 +33,8 @@ class PostsController < ApplicationController
     redirect_to "/"
   end
 
+
+
   private
   def set_post
     @post = Post.find(params[:id])
