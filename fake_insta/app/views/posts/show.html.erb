@@ -21,28 +21,40 @@
 <a href="/posts/<%= @post.id %>" data-method="delete" data-confirm="삭제할래?">삭제하기</a> -->
 
 <h3>댓글 작성하기</h3>
-<form action="/posts/<%= @post.id%>/comments" method="post">
+<form action="/posts/<%= @post.id%>/comments" method="post" data-remote=true>
   <input type="text" name="content" />
   <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
   <input type="submit" />
 </form>
 <hr />
 
+
+
 <div id = "comments">
 <% @comments.each do |comment| %>
   <p>
      <%= comment.content %>
-     <%= link_to '삭제하기', destroy_comment_path(comment.id), method: :delete %>
+     <%= link_to '삭제하기', destroy_comment_path(comment.id), method: :delete, remote: true, class: "delete_comment" %>
   </p>
   <hr />
 <% end %>
 </div>
 
 
+
 <script>
+  $('form').on("ajax:success", function(){
+     $('input[name="content"]').val("");
+  });
+</script>
+
+<!-- <script>
+
+
+//댓글
     $('input[type="submit"]').on('click',function(e){
       e.preventDefault();
-      alert('start');
+      alert('start_submit');
       $.ajax({
         url: $('form').attr('action'),
         type: 'POST',
@@ -59,7 +71,30 @@
         }
       });
     });
-</script>
+
+
+
+//댓글 삭제
+    $('.delete_comment').on("click",function(e){
+       e.preventDefault();
+       alert('start_delete');
+       $.ajax({
+         url: this.href,
+         type: 'DELETE',
+         data: {authenticity_token:$('[name="csrf-token"]').attr('content')},
+         dataType: 'script',
+         success: function(){
+            alert('delete_complete');
+         },
+         error: function(){
+           alert('delete_error');
+         }
+       });
+    });
+
+
+
+</script> -->
 
 
 <!--

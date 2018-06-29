@@ -1,0 +1,4 @@
+var parent = $('a[href="/comments/<%= params[:comment_id] %>"]').parent();  //p태그 삭제
+var hr = parent.next();   //hr태그 삭제
+parent.remove();
+hr.remove();

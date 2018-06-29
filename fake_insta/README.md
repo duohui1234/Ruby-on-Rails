@@ -432,3 +432,160 @@ class ApplicationController < ActionController::Base
     
 end    
 ~~~
+
+
+## Rails ajax 구현
+
+
+
+#### 글 생성시 ajax
+
+- data-remote = true (html 태그 기준)
+
+  ~~~ruby
+  <h3>댓글 작성하기</h3>
+  <form action="/posts/<%= @post.id%>/comments" method="post" data-remote=true>
+    <input type="text" name="content" />
+    <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+    <input type="submit" />
+  </form>
+  <hr />
+  ~~~
+
+- CommentsController => create action
+
+  ~~~ruby
+    def create
+      @comment = Post.find(params[:post_id]).comments.new(comment_params)
+      @comment.user_id = current_user.id
+  
+  
+      if @comment.save
+        respond_to do |format|
+        format.html {redirect_to :back}
+        #만약 action명과 파일명이 다를경우 (create_temp) 일경우는 render 명을 입력해야
+        #format.js {render 'create_temp'}
+        
+        #따로 렌더 명시안하면 자동으로 create.js.erb 를 렌더한다 (action명과 )
+        format.js {}    
+        end
+      else
+        redirect_to :back
+      end
+    end
+  ~~~
+
+- create.js.erb 작성 (escape_javascript의 약어는 j)
+
+  ~~~ruby
+  $("div#comments").append("<p><%= escape_javascript(@comment.content) %><%= escape_javascript(link_to '삭제하기', destroy_comment_path(@comment.id), method: :delete, remote: true, class: 'delete_comment') %></p><hr/>");
+  ~~~
+
+- show.html.erb 파일에 ajax 결과에 따른 event handler 작성
+
+  ~~~javascript
+  <script>
+    $('form').on("ajax:success", function(){
+       $('input[name="content"]').val("");
+    });
+  </script>
+  ~~~
+
+
+
+#### 글 삭제시 ajax 구현
+
+- remote: true (rails 코드 기준)
+
+  ~~~ruby
+  <div id = "comments">
+  <% @comments.each do |comment| %>
+    <p>
+       <%= comment.content %>
+       <%= link_to '삭제하기', destroy_comment_path(comment.id), method: :delete, remote: true, class: "delete_comment" %>
+    </p>
+    <hr />
+  <% end %>
+  </div>
+  ~~~
+
+- CommentsController => destroy action
+
+  ~~~ruby
+    def destroy
+      @comment = Comment.find(params[:comment_id])
+      @comment.destroy
+  
+     respond_to do |format|
+       format.html {redirect_to :back}
+       format.js { }
+     end
+    end
+  ~~~
+
+- destroy.js.erb작성
+
+  ~~~javascript
+  var parent = $('a[href="/comments/<%= params[:comment_id] %>"]').parent();  //p태그 삭제
+  var hr = parent.next();   //hr태그 삭제
+  parent.remove();
+  hr.remove();
+  ~~~
+
+
+
+
+
+## jQuery로 ajax 구현
+
+- 글 생성시 ajax 구현
+
+  ~~~javascript
+  <script>   
+  $('input[type="submit"]').on('click',function(e){
+        e.preventDefault();
+        alert('start_submit');
+        $.ajax({
+          url: $('form').attr('action'),
+          type: 'POST',
+          data: {content: $('input[name="content"]').val(),
+                 authenticity_token:$('[name="csrf-token"]').attr('content')
+                },
+          dataType: 'script',
+          success: function(){
+            alert('success')
+            $('input[name="content"]').val("");
+          },
+          error: function(){
+            alert('fail')
+          }
+        });
+      });
+  </script>
+  ~~~
+
+- 글 삭제시 ajax 구현
+
+  ~~~javascript
+  <script>    
+  $('.delete_comment').on("click",function(e){
+         e.preventDefault();
+         alert('start_delete');
+         $.ajax({
+           url: this.href,
+           type: 'DELETE',
+           data: {authenticity_token:$('[name="csrf-token"]').attr('content')},
+           dataType: 'script',
+           success: function(){
+              alert('delete_complete');
+           },
+           error: function(){
+             alert('delete_error');
+           }
+         });
+      });
+  </script>
+  ~~~
+
+- 이후 rails의 ajax 구현 순서와 동일
+
