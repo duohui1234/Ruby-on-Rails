@@ -16,4 +16,3 @@ module ApplicationHelper
   end
 
 end
-t

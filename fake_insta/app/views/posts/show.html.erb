@@ -28,7 +28,64 @@
 </form>
 <hr />
 
+<div id = "comments">
 <% @comments.each do |comment| %>
-  <%= comment.content %>
+  <p>
+     <%= comment.content %>
+     <%= link_to '삭제하기', destroy_comment_path(comment.id), method: :delete %>
+  </p>
   <hr />
 <% end %>
+</div>
+
+
+<script>
+    $('input[type="submit"]').on('click',function(e){
+      e.preventDefault();
+      alert('start');
+      $.ajax({
+        url: $('form').attr('action'),
+        type: 'POST',
+        data: {content: $('input[name="content"]').val(),
+               authenticity_token:$('[name="csrf-token"]').attr('content')
+              },
+        dataType: 'script',
+        success: function(){
+          alert('success')
+          $('input[name="content"]').val("");
+        },
+        error: function(){
+          alert('fail')
+        }
+      });
+    });
+</script>
+
+
+<!--
+<script>
+
+   $('input[type="submit"]').on('click', function(e){
+    var response =  confirm("정말 제출하실건가요:)");
+    if (!response){
+       //e.preventDefault();  //취소 누를경우 response == false, 이때는 input tag의 submit기능을 막는다, return false와 같<>
+       e.stopImmediatePropagation();
+       return false;
+    }else{
+      //e.stopImmediatePropagation();
+    }
+  });
+
+  function checkContentLen(e){
+    var content = $('input[name = "content"]').val();
+    if(content.length < 10){
+      alert("10글자 이상 작성해 주세요");
+      return false;
+    }else{
+      alert('참 잘했어요');
+    }
+  }
+
+  $('input[type="submit"]').on('click', checkContentLen);
+
+</script> -->

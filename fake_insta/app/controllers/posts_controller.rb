@@ -2,12 +2,12 @@ class PostsController < ApplicationController
   before_action :set_post, only: [:show, :edit, :update, :destroy]
   before_action :authenticate_user!, except: :index
   load_and_authorize_resource
-  
+
 
   def index
     @posts = Post.order(created_at: :desc).page(params[:page]).per(3)
     respond_to do |format|
-      format.html
+      format.html  #render 페이지를 따로 작성하지 않을 경우 default로 index.html을 렌더한다 (action명과 동일)
       format.json { render json: @posts }
     end
   end
@@ -17,8 +17,8 @@ class PostsController < ApplicationController
     @post = Post.new
   end
 
-  def create
 
+  def create
       @post = current_user.posts.new(post_params)
       respond_to do |format|
       if @post.save #저장이 되었을 경우 true 리턴
@@ -33,6 +33,7 @@ class PostsController < ApplicationController
      end
     end
   end
+
 
 
   def show

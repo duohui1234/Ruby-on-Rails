@@ -2,8 +2,8 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
 
-  #helper_method 어느 뷰에서든 사용할 수 있도록 한다
 
+  #helper_method 어느 뷰에서든 사용할 수 있도록 한다
   helper_method :current_user
   def current_user
     #session에 저장되어있는 경우 @User를 찾아서 저장한다.
@@ -13,14 +13,13 @@ class ApplicationController < ActionController::Base
   end
 
 
+
   def authorize
     if current_user.nil?
       flash[:alert] = "로그인을 해주세요"
       redirect_to '/'
     end
   end
-
-  
 
 
 end
