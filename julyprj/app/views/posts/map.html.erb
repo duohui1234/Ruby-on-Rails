@@ -1,6 +1,6 @@
-<div id="map" style="width:100%;height:400px;"></div>
+<div id="map" style="width:100%;height:700px;"></div>
 
-<script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId=oh1uKgJ4WS5Kk4okhOqS&submodules=geocoder"></script>
+<script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?xx&submodules=geocoder"></script>
 <script>
 
 
@@ -13,44 +13,257 @@ var mapOptions = {
        position: N.Position.RIGHT_CENTER
  },
  minZoom: 1,
- maxZoom: 14
+ maxZoom: 15
 };
 
 
    //var map = new naver.maps.Map('map');
    var map = new N.Map('map',mapOptions);  // naver.maps의 축약형 N
-   var naver_address = new N.LatLng(37.3595704, 127.105399);
+   var cityhall = new N.LatLng(37.5666805, 126.9784147);
+   var data;
 
-   map.setCenter(naver_address); // 중심 좌표 이동
-   map.setZoom(6);     // 줌 레벨 변경
+   var markers = [];
+   var infoWindows = [];
+   var indices = [];
 
-   var marker = new N.Marker({
-     position: naver_address,
-     map: map
-   });
+    // var data = [
+    //   {name: "아리차이", address: "서울특별시 관악구 신림동길 4", link: "https://store.naver.com/restaurants/detail?id=11704746", x: 126.9282765, y: 37.4876462},
+    //   {name: "한우등촌골", address: "서울특별시 강서구 등촌로 201", link: "https://store.naver.com/restaurants/detail?id=35966485", x:126.86273, y: 37.5476847},
+    //   {name: "수유부추곱창", address: "서울특별시 강북구 도봉로87길 26-21", link: "https://store.naver.com/restaurants/detail?id=37111836", x: 127.0247721, y: 37.6393168},
+    //   {name: "강천민물장어", address:"서울특별시 강동구 올림픽로 834 한강시티라이프", link: "https://store.naver.com/restaurants/detail?id=18905396", x: 127.1297937, y: 37.5553916 }
+    // ];
 
 
-   var contentString = [
-    '<div class="iw_inner">',
-    '   <h3>서울특별시청</h3>',
-    '   <p>서울특별시 중구 태평로1가 31 | 서울특별시 중구 세종대로 110 서울특별시청<br>',
-    '       <img src="./img/hi-seoul.jpg" width="55" height="55" alt="서울시청" class="thumb" /><br>',
-    '       02-120 | 공공,사회기관 > 특별,광역시청<br>',
-    '       <a href="http://www.seoul.go.kr" target="_blank">www.seoul.go.kr/</a>',
-    '   </p>',
-    '</div>'
-].join('');
+   map.setCenter(cityhall); // 중심 좌표 이동
+   map.setZoom(15);     // 줌 레벨 변경
 
-var infowindow = new naver.maps.InfoWindow({
-    content: contentString
+   getData();
+
+   function getData(){  //ajax는 비동기라서 data 값을 받기 전에 먼저 밑에 for문이 실행되어버린다, 그래서 for문을 하나의 function으로 만듬
+
+     var bounds = map.getBounds();
+     var max = bounds._max;
+     var min = bounds._min;
+
+     $.ajax({
+       url:'/map_data' ,
+       type: 'POST',
+       dataType: 'json',
+       data: {authenticity_token: $('[name="csrf-token"]').attr('content'),
+             max: JSON.stringify(max),
+             min: JSON.stringify(min),
+             indices: JSON.stringify(indices)},
+       success: function(result){
+          data = result[0];
+          //result[1] //새로로딩된 학교들의 아이디 값  //이 아이디 값들은 concat으로 indices 배열과 합쳐준다
+          indices = indices.concat(result[1]);
+
+          //alert('success');
+          // console.log('z');
+          createElements();
+       }
+
+     });
+   };
+
+
+function createElements(){
+  var new_markers = [];
+  var new_infoWindows = [];
+  // alert('create success');
+  for(var i = 0; i<data.length; i++){
+
+    var school = data[i];
+
+    var marker = new N.Marker({
+      position: new N.LatLng(school.lat, school.lng),
+      map: map,
+      icon: {
+          url: 'https://navermaps.github.io/maps.js/docs' +'/img/example/sally.png',
+          size: new naver.maps.Size(50, 52),  //보이는 부분만 조정, 이미지가 전체적으로 줄어들지 않고, 그냥 사이즈에 맞게 잘린5
+          origin: new naver.maps.Point(0, 0),  //
+          //anchor: new naver.maps.Point(0, 0)
+          anchor: new naver.maps.Point(25, 26)    //현재 이미지사이즈의 나누기 2한 값을 넣어야
+        },
+        animation: 1  //1:계속 움직임 2:마커 떨어지고 끝남
+    });
+
+
+    var contentString = [
+     '<div class="iw_inner">',
+     '<h3>'+school.name+'</h3>',
+     '<p>'+school.address+'</p>',
+     '<a href="https://www.naver.com/">알아보기</a>'
+    ].join('')
+
+
+
+  var infoWindow = new N.InfoWindow({
+     content: contentString
+  });
+
+
+  new_markers.push(marker);
+  new_infoWindows.push(infoWindow);
+  markers.push(marker);
+  infoWindows.push(infoWindow);
+
+  }
+
+
+  addEvents(new_markers, new_infoWindows);
+};
+
+
+
+
+ function getClickHandler(new_markers, new_infoWindows, seq) {
+     return function(e) {
+         var marker = new_markers[seq],
+             infoWindow = new_infoWindows[seq];
+
+         if (infoWindow.getMap()) { //정보가 맵에 표시되어 있는지
+             infoWindow.close();
+         } else {
+             infoWindow.open(map, marker);
+         }
+     }
+ }
+
+
+function addEvents(new_markers, new_infoWindows){
+ //alert('event');
+
+ for (var i=0, ii=new_markers.length; i<ii; i++) {
+     N.Event.addListener(new_markers[i], 'click', getClickHandler(new_markers,new_infoWindows,i));
+ }
+   updateMarkers(map, markers);
+};
+
+
+ naver.maps.Event.addListener(map, 'idle', function() {
+    getData();
+
 });
 
-naver.maps.Event.addListener(marker, "click", function(e) {
-    if (infowindow.getMap()) {  //getMap() => map 정보창 열려있으면, 정보창 관한 정보 리턴 ,열려있지 않으면 null리턴
-        infowindow.close();
-    } else {
-        infowindow.open(map, marker);
+function updateMarkers(map, markers) {
+
+    var mapBounds = map.getBounds();  //map의 왼쪽하단의 좌표와 오른쪽 상단의 좌표를 반환
+    var marker, position;
+
+    for (var i = 0; i < markers.length; i++){  //마커 배열의 요소들이 각 맵의 경계안에있으면 마커를 보여주거나 마커를 보여주지 않거나 한다
+
+        marker = markers[i]
+        position = marker.getPosition();
+
+        if (mapBounds.hasLatLng(position)) {
+            showMarker(map, marker);
+        } else {
+            hideMarker(map, marker);
+        }
     }
-});
+}
+
+function showMarker(map, marker) {
+
+    if (marker.getMap()) return;
+    marker.setMap(map);
+}
+
+function hideMarker(map, marker) {
+
+    if (!marker.getMap()) return;
+    marker.setMap(null);
+}
+
+
+
+
+//    var marker = new N.Marker({
+//      position: naver_address,
+//      map: map
+//    });
+//
+//    var marker2 = new N.Marker({
+//      position: cityhall,
+//      map: map
+//    });
+//
+//
+//    var markers = new N.Marker[marker,marker2];
+//
+//    var contentString = [
+//     '<div class="iw_inner">',
+//     '   <h3>네이버 그린팩토리</h3>',
+//     '   <p>서울특별시 중구 태평로1가 31 | 서울특별시 중구 세종대로 110 서울특별시청<br>',
+//     '       <img src="./img/hi-seoul.jpg" width="55" height="55" alt="서울시청" class="thumb" /><br>',
+//     '       02-120 | 공공,사회기관 > 특별,광역시청<br>',
+//     '       <a href="http://www.seoul.go.kr" target="_blank">www.seoul.go.kr/</a>',
+//     '   </p>',
+//     '</div>'
+// ].join('');
+//
+//
+// var contentString2 = [
+//  '<div class="iw_inner">',
+//  '   <h3>서울특별시청</h3>',
+//  '   <p>서울특별시 중구 태평로1가 31 | 서울특별시 중구 세종대로 110 서울특별시청<br>',
+//  '       <img src="./img/hi-seoul.jpg" width="55" height="55" alt="서울시청" class="thumb" /><br>',
+//  '       02-120 | 공공,사회기관 > 특별,광역시청<br>',
+//  '       <a href="http://www.seoul.go.kr" target="_blank">www.seoul.go.kr/</a>',
+//  '   </p>',
+//  '</div>'
+// ].join('');
+//
+//
+// var infowindow = new naver.maps.InfoWindow({
+//     content: contentString
+// });
+//
+// var infowindow2 = new naver.maps.InfoWindow({
+//  content: contentString2
+// });
+//
+//
+// var infoWindows = new naver.maps.InfoWindow[infoWindow,infowindow2];
+//
+// //
+// // naver.maps.Event.addListener(marker, "click", function(e) {
+// //     if (infowindow.getMap()) {  //getMap() => map 정보창 열려있으면, 정보창 관한 정보 리턴 ,열려있지 않으면 null리턴
+// //         infowindow.close();
+// //     } else {
+// //         infowindow.open(map, marker);
+// //     }
+// // });
+// //
+// //
+// // naver.maps.Event.addListener(marker2, "click", function(e) {
+// //  if (infowindow2.getMap()) {  //getMap() => map 정보창 열려있으면, 정보창 관한 정보 리턴 ,열려있지 않으면 null리턴
+// //      infowindow2.close();
+// //  } else {
+// //      infowindow2.open(map, marker2);
+// //  }
+// // });
+//
+//
+//
+// // 해당 마커의 인덱스를 seq라는 클로저 변수로 저장하는 이벤트 핸들러를 반환합니다.
+// function getClickHandler(seq) {
+//     return function(e) {
+//         var marker = markers[seq],
+//             infoWindow = infoWindows[seq];
+//
+//         if (infoWindow.getMap()) {
+//             infoWindow.close();
+//         } else {
+//             infoWindow.open(map, marker);
+//         }
+//     }
+// }
+//
+// for (var i=0, ii=markers.length; i<ii; i++) {
+//     naver.maps.Event.addListener(markers[i], 'click', getClickHandler(i));
+// }
+
 
 </script>

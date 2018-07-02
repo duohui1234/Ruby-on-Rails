@@ -5,6 +5,29 @@ class PostsController < ApplicationController
     #code
   end
 
+
+  def map_data
+    max = JSON.parse(params[:max])  #json_string => hash
+    min = JSON.parse(params[:min])
+    indices = JSON.parse(params[:indices]) #네이버 맵에 이미 로딩되어있는 학교들의 id값이 들어있다
+
+    school = School.where("(lat BETWEEN ? and ?) and (lng BETWEEN ? and ?)",min["_lat"],max["_lat"],min["_lng"],max["_lng"])
+    school_id = school.map { |x| x.id }
+    school_id -= indices #루비는 배열의 - 를 지원, indices 안에 없는 내용만 남긴다. 이미 로딩되어있는 학교제외하고 없는 학교만 추가로 보내기위해
+
+    if school_id.length == 0
+      school = []
+    else
+      #school_id에 존재하는 학교만 @school에 저장
+      school = school.select {|x| school_id.include? x.id}
+    end
+
+    respond_to do |format|
+      format.json { render json: [school, school_id]}  #@school 데이터를 json 형식으로 바꿔서 render
+    end
+  end
+
+
   # GET /posts
   # GET /posts.json
   def index
