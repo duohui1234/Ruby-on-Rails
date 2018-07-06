@@ -10,7 +10,7 @@
 - Commnets 모델
   - `rails g model comment content:string`
   - post _ id 저장
-  
+
 
 #### Devise
 
@@ -93,7 +93,7 @@
    ~~~ruby
    #1번
    $ rails generate devise:views users
-   
+
    #config/initializers/devise.rb
    config.scoped_views = true
    ~~~
@@ -118,13 +118,13 @@
         # For APIs, you may want to use :null_session instead.
         protect_from_forgery with: :exception
         before_action :configure_permitted_parameters, if: :devise_controller?
-      
+
       protected
-      
+
       def configure_permitted_parameters
             devise_parameter_sanitizer.permit(:sign_up, keys: [:name])
       end
-          
+
       end
       ~~~
 
@@ -202,7 +202,7 @@ end
   - 별도의 url(action="/"),method(get,post,put)을 명시하지 않아도 됨.
   - Controller의 해당 액션(new, edit)에서 반드시 @post에 Post 오브젝트가 담겨야함
     - `new`: `@post = Post.new ` new에서는 비어있기 때문에 자동으로 create로인식
-    - `edit` : `@post = Post.find(id)` edit에는 값이 들어있기 때문에 update로 
+    - `edit` : `@post = Post.find(id)` edit에는 값이 들어있기 때문에 update로
   - 각 input field의 symbol은 반드시 @post의 column명이랑 일치해야함
 
 ### Link_to:url helper
@@ -298,7 +298,7 @@ end
 ```ruby
 #app/helpers/application_helper.rb
 def flash_message(type)
-    case type 
+    case type
     when "alert" then  "alert alert-warnig"
     when "notice" then  "alert alert-primary"
     end
@@ -382,7 +382,7 @@ class Ability
     can :manage, Post, user_id: user.id
     can :create, Comment
   end
-    
+
 end
 ~~~
 
@@ -417,9 +417,9 @@ end
 #app/controllers/application_controller.erb
 
 class ApplicationController < ActionController::Base
-    
+
     ...
-        
+
     rescue_from CanCan::AccessDenied do |exception|
       respond_to do |format|
         format.json { head :forbidden, content_type: 'text/html' }
@@ -427,9 +427,9 @@ class ApplicationController < ActionController::Base
         format.js   { head :forbidden, content_type: 'text/html' }
       end
     end
-    
+
     ...
-    
+
 end    
 ~~~
 
@@ -458,14 +458,14 @@ end
     def create
       @comment = Post.find(params[:post_id]).comments.new(comment_params)
       @comment.user_id = current_user.id
-  
-  
+
+
       if @comment.save
         respond_to do |format|
         format.html {redirect_to :back}
         #만약 action명과 파일명이 다를경우 (create_temp) 일경우는 render 명을 입력해야
         #format.js {render 'create_temp'}
-        
+
         #따로 렌더 명시안하면 자동으로 create.js.erb 를 렌더한다 (action명과 )
         format.js {}    
         end
@@ -515,7 +515,7 @@ end
     def destroy
       @comment = Comment.find(params[:comment_id])
       @comment.destroy
-  
+
      respond_to do |format|
        format.html {redirect_to :back}
        format.js { }
@@ -589,3 +589,127 @@ end
 
 - 이후 rails의 ajax 구현 순서와 동일
 
+~~~console
+$ rails g model like
+~~~
+
+~~~ruby
+class CreateLikes < ActiveRecord::Migration
+  def change
+    create_table :likes do |t|
+      t.references :post   #실제 디비에는 post_id로 들어감
+      t.references :user
+      t.timestamps null: false
+    end
+  end
+end
+~~~
+
+~~~console
+$ rake db:migrate
+~~~
+
+~~~ruby
+#post.rb
+  has_many :likes
+  has_many :liked_users, through: :likes, source: :user
+~~~
+
+~~~ruby
+#user.rb
+  has_many :likes
+  has_many :lliked_posts, through: :likes, source: :post
+~~~
+
+~~~ruby
+#user.rb
+  belongs_to :user
+  belongs_to :post
+~~~
+
+~~~ruby
+#post/index.html.erb
+
+ <% if current_user.liked_posts.include? post %>
+
+    <%= link_to  "posts/#{post.id}/like", data: {id: post.id}, remote: true, method: :delete do%>
+    <i class="fas fa-heart"></i>
+ <% end %>
+ <%else%>
+    <%= link_to  "posts/#{post.id}/like", data: {id: post.id}, remote: true, method: :put  do%>
+    <i class="far fa-heart"></i>
+ <% end %>
+
+ <%end%>
+~~~
+
+~~~ruby
+#routes.rb
+
+  put '/posts/:post_id/like' => 'likes#create'
+  delete '/posts/:post_id/like' => 'likes#destroy'
+~~~
+
+~~~ruby
+#likes_controller
+class LikesController < ApplicationController
+
+
+def create
+    @like = Like.create(user_id: current_user.id, post_id: params[:post_id])
+    @post_id = params[:post_id]
+
+    respond_to do |format|
+      format.html {redirect_to :back}
+      format.js {}
+    end
+end
+
+
+def destroy
+     @like = Like.find_by(user_id: current_user.id, post_id: params[:post_id]).destroy
+     @post_id = params[:post_id]
+
+     respond_to do |format|
+       format.html {redirect_to :back}
+       format.js {}
+     end
+   end
+
+
+end
+~~~
+
+~~~ruby
+#views/ikes/create.js.erb
+var like_btn = $('a[data-id= <%= @post_id %>]');
+
+like_btn.next().text(<%= Post.find(@post_id).liked_users.count %>)
+like_btn.replaceWith(`
+  <%= link_to  "posts/#{@post_id}/like", data: {id: @post_id}, remote: true, method: :delete do %>
+  <i class="fas fa-heart"></i>
+  =<% end %>`)
+~~~
+
+~~~ruby
+var like_btn = $('a[data-id= <%= @post_id %>]');
+
+like_btn.next().text(<%= Post.find(@post_id).liked_users.count %>)
+like_btn.replaceWith(`
+  <%= link_to  "posts/#{@post_id}/like", data: {id: @post_id}, remote: true, method: :put do%>
+  <i class="far fa-heart"></i>
+  <% end %>
+  `)
+~~~
+
+
+
+- `rails c` 에서
+
+~~~console
+Like.where(post_id: 39)
+Post.find(39).likes
+Post.find(39).liked_users
+Post.find_by(user_id: 1, post_id: 22)
+current_users.liked_posts.include? post.find(22)
+~~~
