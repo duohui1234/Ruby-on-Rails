@@ -7,8 +7,23 @@
   <p>제목: <%= post.title %></p><br/>
   <p>내용: <%= post.content %></p><br/>
   <%= link_to '글보기', post , class: "btn btn-primary"%>
-  <!-- <a href="/posts/<%=post.id%>">글 보러가기</a> -->
-  <hr />
+
+
+ <% if current_user.liked_posts.include? post %>
+  <%= link_to  "posts/#{post.id}/like", data: {id: post.id}, remote: true, method: :delete do%>
+    <i class="fas fa-heart"></i>
+  <% end %>
+ <%else%>
+ <%= link_to  "posts/#{post.id}/like", data: {id: post.id}, remote: true, method: :put  do%>
+    <i class="far fa-heart"></i>
+ <% end %>
+ <%end%>
+
+ <span >
+   <%= post.liked_users.count %>
+ </span>
+
+<hr />
 <% end %>
 
 <%= paginate @posts %>

@@ -3,7 +3,6 @@ class PostsController < ApplicationController
   before_action :authenticate_user!, except: :index
   load_and_authorize_resource
 
-
   def index
     @posts = Post.order(created_at: :desc).page(params[:page]).per(3)
     respond_to do |format|

@@ -1,3 +1,16 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
 $("div#comments").append("<p><%= escape_javascript(@comment.content) %><%= escape_javascript(link_to '삭제하기', destroy_comment_path(@comment.id), method: :delete, remote: true, class: 'delete_comment') %></p><hr/>");
 
 

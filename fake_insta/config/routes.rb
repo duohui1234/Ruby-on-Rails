@@ -7,6 +7,9 @@ Rails.application.routes.draw do
   post '/posts/:post_id/comments' => 'comments#create'
   delete '/comments/:comment_id' => 'comments#destroy', as: 'destroy_comment'  #이 url에 접근할 때 destroy_comment라는 이름으로 접근가능
 
+  put '/posts/:post_id/like' => 'likes#create'
+  delete '/posts/:post_id/like' => 'likes#destroy'
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
