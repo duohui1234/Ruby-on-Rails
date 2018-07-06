@@ -589,6 +589,9 @@ end
 
 - 이후 rails의 ajax 구현 순서와 동일
 
+
+## 게시판 좋아요 기능
+
 ~~~console
 $ rails g model like
 ~~~
