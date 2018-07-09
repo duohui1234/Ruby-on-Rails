@@ -1,5 +1,8 @@
 source 'https://rubygems.org'
 
+#파일 업로드
+gem 'carrierwave', '~> 1.0'
+gem "mini_magick"
 
 gem 'cancancan', '~> 2.0'
 gem 'kaminari'

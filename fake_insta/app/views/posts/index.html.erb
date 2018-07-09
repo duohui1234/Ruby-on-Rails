@@ -9,7 +9,8 @@
   <%= link_to '글보기', post , class: "btn btn-primary"%>
 
 
- <% if current_user.liked_posts.include? post %>
+
+ <% if current_user and current_user.liked_posts.include? post %>
   <%= link_to  "posts/#{post.id}/like", data: {id: post.id}, remote: true, method: :delete do%>
     <i class="fas fa-heart"></i>
   <% end %>
