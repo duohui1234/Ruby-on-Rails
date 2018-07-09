@@ -3,8 +3,10 @@
 <p>작성자: <%= @post.user.name %></p>
 <p>제목: <%= @post.title %></p>
 <p>내용: <%= @post.content %></p>
-<p><%= image_tag @post.img %></p>
-
+<%= image_tag @post.img %>
+<%= image_tag @post.img.thumb_fit.url %>
+<%= image_tag @post.img.thumb_fill.url %>
+<br>
 
 <!-- 현재 로그인한 사용자가 쓴글만 삭제 수정할 수 있도록 하는 로직 -->
 <%# if current_user.id == @post.user.id %>

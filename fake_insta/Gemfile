@@ -1,5 +1,9 @@
 source 'https://rubygems.org'
 
+#figaro
+gem 'figaro'  #환경변수 관리
+gem 'fog' #cloud service aws사용하기위해서
+
 #파일 업로드
 gem 'carrierwave', '~> 1.0'
 gem "mini_magick"
