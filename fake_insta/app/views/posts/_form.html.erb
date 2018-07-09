@@ -11,7 +11,20 @@
 <%= simple_form_for @post, html: {multipart: true} do |f| %>
 <%= f.error_notification %>
 <%= f.input :title %>
-<%= f.input :content %>
+<%= f.input :content, class: "tinymce", row: 40, cols: 120 %>
+<%= tinymce %>
 <%= f.input :img %>
 <%= f.button :submit, class: "btn-primary"%>
 <%end%>
+
+<!-- 
+<script type = "text/javascript">
+$(document).on('ready',function(){
+  tinyMCE.init({
+    selector: 'textarea.tinymce',
+    editor_selector: 'tinymce',
+    plugins: ['table','image','link'],
+    toolbar: 'styleselect | bold italic | undo redo | table'
+  });
+})
+</script> -->

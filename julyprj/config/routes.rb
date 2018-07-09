@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   resources :posts
+  root 'posts#map'
   get '/map' => 'posts#map'
   post '/map_data' => 'posts#map_data'
   # The priority is based upon order of creation: first created -> highest priority.

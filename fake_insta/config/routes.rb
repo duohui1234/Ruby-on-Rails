@@ -1,5 +1,9 @@
 Rails.application.routes.draw do
+  get 'tinymce_assets/create'
+
   devise_for :users
+
+  post '/tinymce_assets' => 'tinymce_assets#create'
 
   root 'posts#index'
   resources :posts

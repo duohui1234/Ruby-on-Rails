@@ -716,3 +716,283 @@ Post.find(39).liked_users
 Post.find_by(user_id: 1, post_id: 22)
 current_users.liked_posts.include? post.find(22)
 ~~~
+
+
+~~~ruby
+rails g migration AddImgToPosts img:string
+~~~
+
+
+
+[carrierwave gem](https://github.com/carrierwaveuploader/carrierwave)
+
+~~~console
+rails generate uploader img
+~~~
+
+~~~console
+class User < ActiveRecord::Base
+  mount_uploader :avatar, AvatarUploader
+end
+~~~
+
+
+
+[minimagic gem](https://github.com/minimagick/minimagick)
+
+~~~ruby
+#Gemfile
+gem "mini_magick"
+~~~
+
+~~~console
+console
+brew install imagemagick //mac에서
+~~~
+
+
+
+### 기존에 글 작성할 때 추가한 이미지를 aws 버킷으로 업로드하도록
+
+[AWS IAM](https://console.aws.amazon.com/iam/home#/home)
+
+그룹 > 새로운 그룹 생성 > s3 full
+
+사용자 > 사용자 생성
+
+서비스 > s3 > 버킷 만들기 > 설정안함 > 버킷 생성완료 (버킷명, 키, 비밀키 보관)
+
+
+
+gem file 추가
+
+~~~ruby
+gem 'figaro'  #환경변수 관리
+gem 'fog' #cloud service, aws사용하기위해서
+~~~
+
+~~~console
+bundle install
+bundle exec figaro install
+~~~
+
+config/application.yml (이 파일은 깃헙에 올라가지 않음)
+
+~~~ruby
+AWS_ACCESS_KEY_ID:  #키
+AWS_SECRET_ACCESS_KEY:  #비밀키
+AWS_REGION: ap-northeast-2 #리전  
+S3_BUCKET_NAME:  #버킷네임  
+~~~
+
+
+
+### [fog](https://github.com/carrierwaveuploader/carrierwave)
+
+config/initializers/fog-aws.rb 파일 생성
+
+~~~ruby
+#config/initializers/fog-aws.rb
+
+require 'fog'
+
+CarrierWave.configure do |config|
+  config.fog_provider = 'fog/aws'                        # required
+  config.fog_credentials = {
+    provider:              'AWS',                        # required
+    aws_access_key_id:     ENV["AWS_ACCESS_KEY_ID"],                        # required unless using use_iam_profile
+    aws_secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"],                        # required unless using use_iam_profile
+    #use_iam_profile:       true,                         # optional, defaults to false
+    region:                ENV["AWS_REGION"],                  # optional, defaults to 'us-east-1'
+    #host:                  's3.example.com',             # optional, defaults to nil
+    #endpoint:              'https://s3.example.com:8080' # optional, defaults to nil
+  }
+  config.fog_directory  = ENV["S3_BUCKET_NAME"]                                      # required
+  #config.fog_public     = false                                                 # optional, defaults to true
+  #config.fog_attributes = { cache_control: "public, max-age=#{365.days.to_i}" } # optional, defaults to {}
+end
+
+~~~
+
+app/uploaders/img_uploader.rb
+
+~~~ruby
+  #storage :file  
+  storage :fog  #이미지를 서버에 저장할 경우
+~~~
+
+
+
+### [tinymce-rails](https://github.com/spohlenz/tinymce-rails)  - 텍스트 에디터
+
+config/tinymce.yml 파일 생성
+
+~~~ruby
+default:
+  selector: textarea
+  toolbar: styleselect | bold italic | undo redo | table
+  plugins:
+    - table
+    - image
+    - link
+~~~
+
+app/assets/javascripts/application.js
+
+~~~ruby
+//= require tinymce-jquery    #추가
+~~~
+
+_form.html.erb
+
+~~~ruby
+
+<%= simple_form_for @post, html: {multipart: true} do |f| %>
+<%= f.error_notification %>
+<%= f.input :title %>
+<%= f.input :content, class: "tinymce", row: 40, cols: 120 %>
+<%= tinymce %>
+<%= f.input :img %>
+<%= f.button :submit, class: "btn-primary"%>
+<%end%>
+~~~
+
+posts/show.html.erb
+
+~~~ruby
+<p>내용: <%= @post.content.html_safe %></p>
+#로 수정, 이렇게 해야 텍스트에디터에서 적용한 내용을 스트링이 아니라 html로 적용
+~~~
+
+posts/index.html.erb
+
+~~~ruby
+<p>내용: <%= post.content.html_safe %></p><br/>
+#로 수정, 이렇게 해야 텍스트에디터에서 적용한 내용을 스트링이 아니라 html로 적용
+~~~
+
+
+
+### [language pack](https://github.com/spohlenz/tinymce-rails-langs)
+
+gem file 추가
+
+~~~ruby
+gem 'tinymce-rails-langs'  #후에 bundle install
+~~~
+
+config/tinymce.yml
+
+~~~ruby
+language: ko
+~~~
+
+
+
+### [tinymce-rails-imageupload](https://github.com/PerfectlyNormal/tinymce-rails-imageupload) - 에디터에 이미지 업로드
+
+~~~ruby
+gem 'tinymce-rails-imageupload', '~> 4.0.0.beta'
+#bundle install
+~~~
+
+routes.rb
+
+~~~ruby
+post '/tinymce_assets' => 'tinymce_assets#create' #사용자에 에디터에서 사진 올릴때
+~~~
+
+~~~console
+$ rails g controller TinymceAssets create
+~~~
+
+tinymce_assets_controller.rb
+
+~~~ruby
+class TinymceAssetsController < ApplicationController
+  def create
+
+    render json: {
+          image: {
+            url: view_context.image_url(image)
+                 }
+                 },
+      content_type: "text/html"
+
+  end
+end
+~~~
+
+tinymce.yml
+
+~~~ruby
+default:
+  selector: textarea
+  language: ko
+  uploadimage_default_img_class: img-fluid
+  paste_data_images: true
+  toolbar: styleselect | bold italic | undo redo | table
+  plugins:
+    - table
+    - image
+    - link
+    - textcolor
+    - colorpicker
+    - wordcount
+    - uploadimage
+    - paste
+~~~
+
+gemfile
+
+~~~console
+gem 'aws-sdk'
+~~~
+
+tinymce_assets_controller.rb
+
+~~~ruby
+class TinymceAssetsController < ApplicationController
+  def create
+  file = params[:file]
+  url = upload_image(file)
+  render json: {
+  image: {
+    url: view_context.image_url(image)
+  }
+}, content_type: "text/html"
+
+  end
+
+ private
+ def upload_image(file)
+   s3 = Aws::S3::Resource.new(region: ENV['AWS_REGION'])
+   obj = s3.bucket(ENV['S3_BUCKET_NAME']).object('/posts/content/'+filename(file)
+   obj.upload_file(file.tempfile, {acl: 'public-read'})
+   obj.public_url.to_s
+ end
+
+ def filename(file)
+  "#{Time.now}_#{file.original_filename}"  #원래 파일이름에 시간을 붙여서 파일 네임 생성
+ end
+
+end
+
+~~~
+
+app/assets/javascripts/tinymce/plugins/uploadimage/langs/ko.js
+
+~~~ruby
+tinyMCE.addI18n('nb', {
+  'Insert an image from your computer': '이미지를 삽입해주세요',
+  'Insert image': "이미지 삽입",
+  'Choose an image': "이미지 선택",
+  'You must choose a file': "파일을 선택해야 합니다",
+  'Got a bad response from the server': "서버 오류 발생",
+  "Didn't get a response from the server": "서버로부터 응답을 받지 못했습니다",
+  'Insert': "삽입",
+  'Cancel': "취소",
+  'Image description': "이미지 설명",
+});
+
+~~~

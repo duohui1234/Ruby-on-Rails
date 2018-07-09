@@ -1,5 +1,10 @@
 source 'https://rubygems.org'
 
+gem 'aws-sdk'
+gem 'tinymce-rails'
+gem 'tinymce-rails-langs'
+gem 'tinymce-rails-imageupload', '~> 4.0.0.beta'
+
 #figaro
 gem 'figaro'  #환경변수 관리
 gem 'fog' #cloud service aws사용하기위해서

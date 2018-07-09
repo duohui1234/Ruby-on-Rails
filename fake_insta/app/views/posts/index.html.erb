@@ -5,7 +5,7 @@
   <p>작성자: <%= post.user.name %></p><br/>
   <p><%= post.id %>번째 글</p><br/>
   <p>제목: <%= post.title %></p><br/>
-  <p>내용: <%= post.content %></p><br/>
+  <p>내용: <%= post.content.html_safe %></p><br/>
   <%= link_to '글보기', post , class: "btn btn-primary"%>
 
 
@@ -20,7 +20,7 @@
  <% end %>
  <%end%>
 
- <span >
+ <span>
    <%= post.liked_users.count %>
  </span>
 
