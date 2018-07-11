@@ -161,13 +161,16 @@ pry(main)> app.flash
 ~~~ruby
 #db폴더 내에 mydata.csv파일 넣어둠
 
+#seed.rb 파일 수정
 require 'csv'
 CSV.foreach(Rails.root.join('db','mydata.csv'), {headers: true, encoding: "UTF-8"}) do |row|
   Post.create! row.to_hash
 end
 ~~~
 
-
+~~~console
+$rake db:seed
+~~~
 
 ### [Form_tag, From_for](https://guides.rorlab.org/form_helpers.html)
 
@@ -458,6 +461,7 @@ end
     def create
       @comment = Post.find(params[:post_id]).comments.new(comment_params)
       @comment.user_id = current_user.id
+  ~~~
 
 
       if @comment.save
@@ -465,7 +469,7 @@ end
         format.html {redirect_to :back}
         #만약 action명과 파일명이 다를경우 (create_temp) 일경우는 render 명을 입력해야
         #format.js {render 'create_temp'}
-
+    
         #따로 렌더 명시안하면 자동으로 create.js.erb 를 렌더한다 (action명과 )
         format.js {}    
         end
@@ -967,7 +971,7 @@ class TinymceAssetsController < ApplicationController
  private
  def upload_image(file)
    s3 = Aws::S3::Resource.new(region: ENV['AWS_REGION'])
-   obj = s3.bucket(ENV['S3_BUCKET_NAME']).object('/posts/content/'+filename(file)
+   obj = s3.bucket(ENV['S3_BUCKET_NAME']).object('posts/content/'+filename(file)
    obj.upload_file(file.tempfile, {acl: 'public-read'})
    obj.public_url.to_s
  end
